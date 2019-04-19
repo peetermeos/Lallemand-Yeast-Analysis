@@ -1,0 +1,43 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+
+\title{Lallemand Yeast Analysis}
+\author{Peeter Meos \\ Tanel Peet \\Ott Keki{\v s}ev \\ Liubov Kaes}
+\date{March 2019}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+Quick brown fox...
+\subsection{Process Description}
+Process description for yeast fermentation goes here with all the steps F1-F8.
+
+\section{Data Preparation}
+The time series data describing the process arrived in a form of CSV files. The automation system providing the data had split the data vertically into a number of separate files. That is the variables describing the data are grouped into separate files, with one file consisting the entire length of time series (March - December 2018). The process steps were as follows: F2, F4, F5, F6, F7, F8. Additionally we were given data one three processes: CSep, MO and SP. 
+
+\subsection{Cycle Identification}
+The F-process data were time stamped and also enriched with process time field. Therefore it was easy for these process steps to mark the cycles. When the field \texttt{step\_time} was zero, the production line was considered idle. The value change from zero to non-zero was considered as a marker for start of production cycle. Counting cumulatively the number of start markers allowed us to give a sequence number for each production cycle in each F-production step.
+
+\subsection{Labelling}
+As extra data we were given labels for 12 production cycles. The labels were titled ''reject'', ''restrict'' and ''release''. In order to know which cycles to label were additionally given production records in a form of PDF files with handwritten notes. A production record contained dates for process steps of F2 and following F4 or F5. We matched manually those dates with our labelling described above. We assumed that the dates in the PDF files marked the \emph{beginning} of the production step. However, in two cases of F2 we were not able to establish that match and picked the \emph{preceding} cycle label in the data. The rationale for that the date was recorded during the cycle and the production itself had started the previous day. This proved again, that manual data recording is inherently inconsistent and error prone. Therefore, one of our recommendations of our short analysis is to preferably automate the process. If the full automation is not possible, the HMI should be developed that ensures the consistency of timestamps in the recorded data. The full set of recommendations are described in more detail in the last section of this report.
+
+\section{Exploratory Data Analysis}
+Results of EDA go here. 
+
+\section{Model Development}
+\begin{align}
+    min \sum_{i \in I}{X_i}    
+\end{align}
+
+\section{Conclusions}
+
+\section{Recommendations}
+
+\listoffigures
+
+\end{document}

@@ -1,9 +1,11 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+\usepackage{longtable}
+\usepackage{lscape}
 
 \title{Lallemand Yeast Analysis}
-\author{Peeter Meos \\ Tanel Peet \\Ott Keki{\v s}ev \\ Liubov Kaes}
+\author{Peeter Meos \\ Liubov Kyaes \\ Tanel Peet \\Ott Keki{\v s}ev}
 \date{March 2019}
 
 \begin{document}
@@ -18,7 +20,7 @@ Quick brown fox...
 Process description for yeast fermentation goes here with all the steps F1-F8.
 
 \section{Data Preparation}
-The time series data describing the process arrived in a form of CSV files. The automation system providing the data had split the data vertically into a number of separate files. That is the variables describing the data are grouped into separate files, with one file consisting the entire length of time series (March - December 2018). The process steps were as follows: F2, F4, F5, F6, F7, F8. Additionally we were given data one three processes: CSep, MO and SP. The automation system collects the data at 10 minute interval, but in the time stamps themselves between the respective CSV files vary within that interval. That is, even though all CSV files for a given process step have the same number of rows, the timestaps for these rows are shifted but remain inside 10 minute window. Therefore we rounded all timestamps to the nearest smaller 10 minute point. That allowed the time stamps to match and data to be merged.
+The time series data describing the process arrived in a form of CSV files. The automation system providing the data had split the data vertically into a number of separate files. That is the variables describing the data are grouped into separate files, with one file consisting the entire length of time series (March - December 2018). The process steps were as follows: F2, F4, F5, F6, F7, F8. Additionally we were given data on three processes: CSep, MO and SP. The automation system collects the data at 10 minute interval, but in the time stamps themselves between the respective CSV files vary within that interval. That is, even though all CSV files for a given process step have the same number of rows, the timestaps for these rows are shifted but remain inside 10 minute window. Therefore we rounded all timestamps to the nearest smaller 10 minute point. That allowed the time stamps to match and data to be merged.
 
 \subsection{Cycle Identification}
 The F-process data were time stamped and also enriched with process time field. Therefore it was easy for these process steps to mark the cycles. When the field \texttt{step\_time} was zero, the production line was considered idle. The value change from zero to non-zero was considered as a marker for start of production cycle. Counting cumulatively the number of start markers allowed us to give a sequence number for each production cycle in each F-production step.
@@ -47,16 +49,31 @@ Describe \texttt{step\_time}
     min \sum_{i \in I}{X_i}    
 \end{align}
 
-\section{Conclusions}
+\section{Feature Engineering}
+Analysis of variables based on step times to identify some interruption in data recordings or process.  (parameters collection and representation based on step time and timestamps)
 
-\section{Recommendations}
-Having completed the initial analysis of the yeast production process we have the following recommendations for further process improvements and better analytical insight:
+Study of variables. Using multivariate Principal Component Analysis (PCA) method for reducing dimensionality. The method determines the number of principal components and help to identify outliers. The original dataset had a plenty correlated and uncorrelated variables and dimensionality reduction can be a very useful step for visualizing and processing high-dimensional datasets.  PCA was used for data understanding as it allowing most of the variability to be explained using fewer variables.
 
-\begin{enumerate}
-\item Digitize and automate if possible the current manual data collection on the production batches that is at present time in a form of scanned PDF files. The current system is error prone and does not lend itself easily for analytics.
-\item Consider automatic loading of process data that is currently in CSV files into a time series database. That will provide for long term data storage and ease the preparatory steps for any future analytics on the fermentation process.
-\end{enumerate}
+ PCA was performed in few steps: determining the number of principal components, interpreting each principal component in terms of the original variables and identifying outliers. So, the first step of exploratory analysis was performing preliminary feature selection operations in order to bring the number of variables to a manageable range.
+ 
+ F2, F4, F5 Data Classification.  For prediction a status the Linear Discriminant Analysis (LDA) was applied on PCA-’transformed’ data afterwards. The expectation was, that performing PCA before LDA model should give a little better result. LDA explicitly attempts to model the difference between the classes of data and is used when groups are known a priori.  LDA was run on labelled samples and then applied to unlabeled F2, F4 and F5 data.
+ 
+ Analysis of variables to find out deviations from mean values between status groups. Boxplotting.  Applied on classified dataset (predicted labels/statuses) 
+
+NB. Tools > All data analysis was done in R. PCA was performed using the built-in R functions prcomp(), princomp() and R package factoextra to create the visualization. For LDA there was used R package MASS. 
+
+
+
+% Conclusions section
+\input{conclusions.tex}
+
+% Recommendations section
+\input{recommendations.tex}
 
 \listoffigures
+
+\appendix
+% Data description table goes to annex
+\input{data.tex}
 
 \end{document}

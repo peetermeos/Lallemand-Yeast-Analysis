@@ -1,10 +1,13 @@
 \section{Conclusions}
 During exploration and preparation of the given datasets was noticed following:
 \begin{itemize}
-    \item Overall \emph{data quality was acceptable}, there were some N/A variables with null values or missing measurements. The variables nature (data types) vary: process longevity measures of step times, constant values of temperature, air and other conditions, boolean values, etc. The structure of variables is not homogeneous. (???) Mainly variables represent a specified volume or mass of ingredients from manufacturing formulas, also process condition measurements, such as an air or water temperatures.
-    \item Provided \emph{sample data} with labels/status information (how much products were released and rejected) \emph{is not enough sufficient for research}. 
+    \item Overall \emph{data quality was acceptable}, there were some N/A variables with null values or missing measurements. The variables nature (data types) vary: process longevity measures of step times, constant values of temperature, air and other conditions, boolean values, etc. However, the structure of variables is not homogeneous. Mainly variables represent a specified volume or mass of ingredients from manufacturing formulas, however, the data also consist of process condition measurements, such as an air or water temperatures.
+    
+    \item Provided \emph{sample data} with labels/status information (eg. the quantities of products that were released and rejected) \emph{is not enough sufficient for research}. 
     
     \item Furthermore, information about \emph{seed/batch number and statuses were \\ matched manually} and therefore \emph{a probability of error} may exist – not all observations may have complete correct references to the yeast production \emph{cycle start and end time}.
-    \item In spots, Date and Time data integrity is loosely presented as is the assurance that data is consistent.
+    
+    \item In some cases, Date and Time data integrity is loosely presented and the assurance that the data is correctly merged is not consistent.
+    
     \item Classification to predict the status within a given parameters was not enough reliable, it still was possible to classify measurements and in future, with improving original input data (better matching and more classes samples), the prediction precision could be increased.  
 \end{itemize}

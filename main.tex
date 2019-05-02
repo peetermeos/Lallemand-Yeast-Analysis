@@ -1,68 +1,157 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{authblk}
 \usepackage{longtable}
 \usepackage{lscape}
+\usepackage{graphicx}
+\usepackage{lipsum}
+\graphicspath{ {./plots/} }
+\DeclareGraphicsExtensions{.png,.pdf}
 
-\title{Lallemand Yeast Analysis}
-\author{Peeter Meos \\ Liubov Kyaes \\ Tanel Peet \\Ott Keki{\v s}ev}
-\date{March 2019}
+\title{Lallemand Yeast Strain 7442 Mutation Analysis}
+\author{Peeter Meos, Liubov Kaes, Tanel Peet, Ott Keki{\v s}ev}
+%\email{peeter.meos@proekspert.ee}
+\affil{Proekspert AS}
+%\texttt{ peeter.meos@proekspert.ee} 
+%\and
+%Liubov Kyaes
+%\texttt{liubov.kyaes@proekspert.ee} 
+%\and
+%Tanel Peet
+%\texttt{tanel.peet@proekspert.ee}
+%\and
+%Ott Keki{\v s}ev
+%\texttt{ott.kekisev@proekspert.ee}
+%}
+
+\date{May 2019}
 
 \begin{document}
-
 \maketitle
 
 \tableofcontents
+\listoffigures
 
 \section{Introduction}
-Quick brown fox...
-\subsection{Process Description}
+The purpose of this study is to investigate and provide possible insight into the causes of undesirable mutations in yeast strain 7442. Lallemand has established a hypothesis, that the mutations could be caused by an unknown and unfavorable combination of parameters of the production processes. Since the parameter data  of the processes are measured and collected automatically, it should be possible to test that hypothesis using quantitative methods.
+
+Therefore, this analysis, while limited in scope, takes a first look at the collected data. The study looks at the quality and usability of the data, performs feature reduction and takes first steps modelling and predicting the mutation. Additionally, in the end we provide recommendations how to make the data collection, processing and analysis more automated, holistic and less error prone as opposed to current partly manual data collection.
+
+\section{Process Description}
 Process description for yeast fermentation goes here with all the steps F1-F8.
 
 \section{Data Preparation}
-The time series data describing the process arrived in a form of CSV files. The automation system providing the data had split the data vertically into a number of separate files. That is the variables describing the data are grouped into separate files, with one file consisting the entire length of time series (March - December 2018). The process steps were as follows: F2, F4, F5, F6, F7, F8. Additionally we were given data on three processes: CSep, MO and SP. The automation system collects the data at 10 minute interval, but in the time stamps themselves between the respective CSV files vary within that interval. That is, even though all CSV files for a given process step have the same number of rows, the timestaps for these rows are shifted but remain inside 10 minute window. Therefore we rounded all timestamps to the nearest smaller 10 minute point. That allowed the time stamps to match and data to be merged.
+The time series data describing the process arrived in a form of CSV files. The automation system providing the data had split the data vertically into a number of separate files. That is the variables describing the data are grouped into separate files, with one file consisting the entire length of time series (March - December 2018). The process steps were as follows: F2, F4, F5, F6, F7, F8. Additionally we were given data on three processes: CSep, MO and SP. The automation system collects the data at 10 minute interval, but in the time stamps themselves between the respective CSV files vary within that interval. That is, even though all CSV files for a given process step have the same number of rows, the time stamps for these rows are shifted but remain inside 10 minute window. Therefore we rounded all time stamps to the nearest smaller 10 minute point. That allowed the time stamps to match and data to be merged.
 
 \subsection{Cycle Identification}
-The F-process data were time stamped and also enriched with process time field. Therefore it was easy for these process steps to mark the cycles. When the field \texttt{step\_time} was zero, the production line was considered idle. The value change from zero to non-zero was considered as a marker for start of production cycle. Counting cumulatively the number of start markers allowed us to give a sequence number for each production cycle in each F-production step.
+The F-process data were time stamped and also enriched with process time field. Therefore it was easy for these process steps to mark the cycles. When the field \texttt{step\_time} was zero, the production line was considered idle. The value change from zero to non-zero was considered as a marker for start of production cycle. Counting cumulatively the number of start markers allowed us to give a sequence number for each production cycle in each F-production step. Table \ref{tab:new_attributes} summarizes the new variables created.
+
+\begin{table}[]
+    \centering
+    \begin{tabular}{l p{9.5cm}}
+        Variable &  Description \\
+        \hline
+        dtg & periodic time stamp (period in 10 minutes) \\
+        active &   	    active =0   Production Line stopped \newline
+                        active =1   Production Line running
+        \\
+        start&	        batch start indicator \newline
+                        start=1 new batch begins (started) \newline
+                        start=0 no change in cycle
+        \\
+        cycle&	batch sequence number \newline
+                cycle = 0 no batch running \newline
+                cycle=$1\ldots N$  active batch number (serial number)
+        \\
+        \hline
+    \end{tabular}
+    \caption{Description of new variables}
+    \label{tab:new_attributes}
+\end{table}
 
 \subsection{Labelling}
-As extra data we were given labels for 12 production cycles. The labels were titled ''reject'', ''restrict'' and ''release''. In order to know which cycles to label were additionally given production records in a form of PDF files with handwritten notes. A production record contained dates for process steps of F2 and following F4 or F5. We matched manually those dates with our labelling described above. We assumed that the dates in the PDF files marked the \emph{beginning} of the production step. However, in two cases of F2 we were not able to establish that match and picked the \emph{preceding} cycle label in the data. The rationale for that the date was recorded during the cycle and the production itself had started the previous day. This proved again, that manual data recording is inherently inconsistent and error prone. Therefore, one of our recommendations of our short analysis is to preferably automate the process. If the full automation is not possible, the HMI should be developed that ensures the consistency of timestamps in the recorded data. The full set of recommendations are described in more detail in the last section of this report. The cycle numbers in the data with the respective labels are displayed in the table below.
+As extra data we were given labels for 12 production batches. The labels were titled ''reject'', ''restrict'' and ''release''. In order to know which batches to label were additionally given production records in a form of PDF files with handwritten notes. A production record contained dates for process steps of F2 and following F4 or F5. We matched manually those dates with our labelling described above. We assumed that the dates in the PDF files marked the \emph{beginning} of the production step. However, in two cases of F2 we were not able to establish that match and picked the \emph{preceding} batch label in the data. The rationale for that the date was recorded during the batch and the production itself had started the previous day. This proved again, that manual data recording is inherently inconsistent and error prone. Therefore, one of our recommendations of our short analysis is to preferably automate the process. If the full automation is not possible, the HMI should be developed that ensures the consistency of times tamps in the recorded data. The full set of recommendations are described in more detail in the last section of this report. The batch numbers in the data with the respective labels are displayed in the table \ref{tab:batches} below.
 
-%\begin{tabular}
-% Insert the cycle numbers here
-%\end{tabular}
+\begin{table}[]
+    \centering
+    \begin{tabular}{l p{1cm} p{1cm} p{1cm} l l}
+        & \multicolumn{3}{ c }{Batch production dates} \\
+        \hline
+         Batch & F2 &  F4 &  F5 &  & Comment \\
+        \hline
+        4109&4/17    & 4/19    &         & reject& \\
+        4141&5/18    & 5/21    &         & reject& \\
+        4147&5/25    & 5/27    &         & release&Data issue\\
+        4151&5/29    & 6/1     &         & release&\\
+        4165&6/12    & 6/14    &         & release&\\
+        4201&7/18    & 7/20    &         & release&\\
+        4242&8/28    & 8/30    &         & reject&Data issue\\
+        4266&9/21    & 9/23    &         & restrict&Data issue\\
+        4308&11/2    & 11/4    &         & release&\\
+        4320&11/14   & 11/16   &         & restrict&\\
+        5283&10/8    &         & 10/10   & release&\\
+        5292&10/17   &         & 10/19   & reject&\\
+        \hline
+    \end{tabular}
+    \caption{Labelled production batches}
+    \label{tab:batches}
+\end{table}
+
 
 \section{Exploratory Data Analysis}
-Initally for EDA we concentrated to process steps F2 and F4 since majority of the labelled data was situated there. After completing those we also took a look at F5 and the remaining data sets. The data itself is of acceptable quality with no additional changes necessary. The time series inside a given process step contained, however, various levels of information. Some series were almost exclusively either zero, static, or missing. Since these series do not have at least within this study any explanatory power, we cut these series out. The table below displays the time series that were left to describe each process.
+Initially for EDA we concentrated to process steps F2 and F4 since majority of the labelled data resided within those two steps. After completing those we also took a look at F5 and the remaining data sets. The data itself is of acceptable quality with no additional changes necessary. The time series inside a given process step contained, however, various levels of information. Some series were almost exclusively either zero, static, or missing. Since these series do not have at least within this study any explanatory power, we cut these series out. The table below displays the time series that were left to describe each process.
 
 Insert F2 series here
 Describe the length of cycle in \texttt{step\_time}
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{f2_plot}
+    \caption{Overview of labelled F2 production batches}
+    \label{fig:f2series}
+\end{figure}
 
 Insert F4 series here
 Describe \texttt{step\_time}
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\textwidth]{f4_plot}
+    \caption{Overview of labelled F4 production batches}
+    \label{fig:f4series}
+\end{figure}
+
 
 Insert F5 series here.
 Describe \texttt{step\_time}
 
 \section{Model Development}
-\begin{align}
-    min \sum_{i \in I}{X_i}    
-\end{align}
+\lipsum[1]
 
 \section{Feature Engineering}
-Analysis of variables based on step times to identify some interruption in data recordings or process.  (parameters collection and representation based on step time and timestamps)
+Analysis of variables based on step times to identify some interruption in data recordings or process.  (parameters collection and representation based on step time and time stamps).
 
-Study of variables. Using multivariate Principal Component Analysis (PCA) method for reducing dimensionality. The method determines the number of principal components and help to identify outliers. The original dataset had a plenty correlated and uncorrelated variables and dimensionality reduction can be a very useful step for visualizing and processing high-dimensional datasets.  PCA was used for data understanding as it allowing most of the variability to be explained using fewer variables.
+According to provided quality control results (seed and status) information it was possible to explore F2, F4 and F5 yeast fermentation process data. The new labelled dataset was created containing the observations with \emph{manually identified batches and related statuses} (label whether was it rejected, released or restricted release).
 
- PCA was performed in few steps: determining the number of principal components, interpreting each principal component in terms of the original variables and identifying outliers. So, the first step of exploratory analysis was performing preliminary feature selection operations in order to bring the number of variables to a manageable range.
+\subsection{Study of variables}
+Using multivariate Principal Component Analysis (PCA) method for reducing dimensionality. The method determines the number of principal components and help to identify outliers. The original data set had a plenty correlated and uncorrelated variables and dimensionality reduction can be a very useful step for visualizing and processing high-dimensional data sets.  PCA was used for data understanding as it allowing most of the variability to be explained using fewer variables.
+
+The essence of PCA is to map data points that lie in a high dimensional space into lower dimensional space without significant loss of information. When data has strongly correlated features, then calculating the eigenvectors and eigenvalues of the covariance matrix provides a new lower dimensional orthogonal basis for the data. Picking out a basis from those eigenvectors (for instance 4-5 vectors with most explanatory power) allows us to reduce dimensionality in our case from approximately $\mathbb{R}^{20} \to \mathbb{R}^4$. The downside of this, however, is the interpretability. The actual real life meaning of new transformed axes may not be intuitive and explainable by real world processes. Therefore, PCA should always be complimented by actual domain knowledge of the processes.
+
+PCA was performed in the following steps: first determining the number of desired principal components, then interpreting each principal component in terms of the original variables and and lastly identifying the outliers. Therefore, the first step of exploratory analysis was performing preliminary feature selection operations in order to bring the number of variables to a manageable range.
  
- F2, F4, F5 Data Classification.  For prediction a status the Linear Discriminant Analysis (LDA) was applied on PCA-’transformed’ data afterwards. The expectation was, that performing PCA before LDA model should give a little better result. LDA explicitly attempts to model the difference between the classes of data and is used when groups are known a priori.  LDA was run on labelled samples and then applied to unlabeled F2, F4 and F5 data.
+ \subsection{Classification}
+F2, F4, F5 Data Classification.  For prediction a status the Linear Discriminant Analysis (LDA) was applied on data transformed by PCA afterwards. The expectation was, that performing PCA before LDA modelling should give a little better results. LDA explicitly attempts to model the difference between the classes of data and is used when groups are known \emph{a priori}.  LDA was applied on labelled samples and then to unlabeled F2, F4 and F5 data.
  
- Analysis of variables to find out deviations from mean values between status groups. Boxplotting.  Applied on classified dataset (predicted labels/statuses) 
+Analysis of variables to find out deviations from mean values between status groups. Box plotting.  Applied on classified data set (predicted labels/statuses) 
 
-NB. Tools > All data analysis was done in R. PCA was performed using the built-in R functions prcomp(), princomp() and R package factoextra to create the visualization. For LDA there was used R package MASS. 
+\subsection{Tools}
+Since the dataset was rather limited in size, no complex mechanisms for data storage and processing, such as parallel processing, big data storage, or even regular SQL data bases were needed. 
 
+All required data analysis and inference was done in R. PCA was performed using the built-in R functions \texttt{prcomp()}, \texttt{princomp()}. For visualization the study used R packages \texttt{factoextra} and \texttt{ggplot2} with its respective extensions such as facetting. R package MASS was used for LDA. 
 
+% Analysis section
+\input{analysis.tex}
 
 % Conclusions section
 \input{conclusions.tex}
@@ -70,7 +159,12 @@ NB. Tools > All data analysis was done in R. PCA was performed using the built-i
 % Recommendations section
 \input{recommendations.tex}
 
-\listoffigures
+% Areas of further study
+\section{Areas of Further Study}
+Since the scope of this analysis was limited and aimed rather at proving the potential, we identified but did not cover the following potential areas of further research:
+
+\paragraph{Include pH levels to the time series data.} Currently only automatically collected data was analyzed and modelled. In further work, also the data collected manually (or currently in PDF form but not easily readable) should be incorporated to to modelling. The working hypothesis of that research would be, that dynamics of pH level has statistically significant impact on the undesired mutations in yeast.
+\paragraph{Perform more advanced feature engineering on the collected process data.} Currently the process data was treated as independent points in time series. However describing the features of each individual time series for a production batch (such as shape of the curve, rates of change, variablities, moving averages etc) could provide additional valuable insight for modelling. However, it should be noted, that such aggregation of process data will introduce micronumerocity (ie. making sample sizes even smaller). Therefore, in order to provide statistically significant results, firstly, more data collection is needed.
 
 \appendix
 % Data description table goes to annex

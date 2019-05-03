@@ -1,13 +1,19 @@
 \section{Conclusions}
-During exploration and preparation of the given datasets was noticed following:
+During exploration and preparation of the given datasets the following was noticed:
+
+\paragraph{Overall quality was acceptable} There were some N/A variables with null values or missing measurements. The variables nature (data types) vary: process longevity measures of step times, constant values of temperature, air and other conditions, boolean values, etc. However, the structure of variables is not homogeneous. Mainly variables represent a specified volume or mass of ingredients from manufacturing formulas, however, the data also consist of process condition measurements, such as an air or water temperatures.
+    
+\paragraph{Quantities} Provided \emph{sample data} with labels/status information (eg. the quantities of products that were released and rejected) \emph{is not enough sufficient for research}. 
+    
+\paragraph{Manual data} Furthermore, information about \emph{seed/batch number and statuses were matched manually} and therefore \emph{a probability of error} may exist – not all observations may have complete correct references to the yeast production \emph{cycle start and end time}.
+    
+\paragraph{Timestamps} In some cases, Date and Time data integrity is loosely presented and the assurance that the data is correctly merged is not consistent.
+    
+\paragraph{Classification} to predict the status within a given parameters was not enough reliable, it still was possible to classify measurements and in future, with improving original input data (better matching and more classes samples), the prediction precision could be increased.  
+
+\paragraph{Analysis conclusions} From the data analysis the following can be concluded:
 \begin{itemize}
-    \item Overall \emph{data quality was acceptable}, there were some N/A variables with null values or missing measurements. The variables nature (data types) vary: process longevity measures of step times, constant values of temperature, air and other conditions, boolean values, etc. However, the structure of variables is not homogeneous. Mainly variables represent a specified volume or mass of ingredients from manufacturing formulas, however, the data also consist of process condition measurements, such as an air or water temperatures.
-    
-    \item Provided \emph{sample data} with labels/status information (eg. the quantities of products that were released and rejected) \emph{is not enough sufficient for research}. 
-    
-    \item Furthermore, information about \emph{seed/batch number and statuses were \\ matched manually} and therefore \emph{a probability of error} may exist – not all observations may have complete correct references to the yeast production \emph{cycle start and end time}.
-    
-    \item In some cases, Date and Time data integrity is loosely presented and the assurance that the data is correctly merged is not consistent.
-    
-    \item Classification to predict the status within a given parameters was not enough reliable, it still was possible to classify measurements and in future, with improving original input data (better matching and more classes samples), the prediction precision could be increased.  
+    \item The dataset is currently too small and unbalanced to produce statistically significant and reliable results. Moreover, the dataset is not sufficient yet to build reliable machine learning models.
+    \item The variance between the process data of ``rejected'' and ``released'' batches appears to be significant in process step F2 and substantiates further research, whether these difference can influence the mutations and the quality of the yeast.
+    \item In steps F4 and F5 the data is inconclusive and at current state is not able to provide any interesting insight. We recommend to collect more data, see Recommendations section of this paper.
 \end{itemize}

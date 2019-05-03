@@ -7,22 +7,21 @@
 \usepackage{lscape}
 \usepackage{graphicx}
 \usepackage{lipsum}
+\usepackage{wrapfig}
+\usepackage{smartdiagram}
+\usepackage{subcaption}
 \graphicspath{ {./plots/} }
 \DeclareGraphicsExtensions{.png,.pdf}
 
 \title{Lallemand Yeast Strain 7442 Mutation Analysis}
 \author{Peeter Meos, Liubov Kaes, Tanel Peet, Ott Keki{\v s}ev}
-%\email{peeter.meos@proekspert.ee}
+%\texttt{peeter.meos@proekspert.ee}
 \affil{Proekspert AS}
-%\texttt{ peeter.meos@proekspert.ee} 
 %\and
-%Liubov Kyaes
 %\texttt{liubov.kyaes@proekspert.ee} 
 %\and
-%Tanel Peet
 %\texttt{tanel.peet@proekspert.ee}
 %\and
-%Ott Keki{\v s}ev
 %\texttt{ott.kekisev@proekspert.ee}
 %}
 
@@ -37,18 +36,29 @@
 \section{Introduction}
 The purpose of this study is to investigate and provide possible insight into the causes of undesirable mutations in yeast strain 7442. Lallemand has established a hypothesis, that the mutations could be caused by an unknown and unfavorable combination of parameters of the production processes. Since the parameter data  of the processes are measured and collected automatically, it should be possible to test that hypothesis using quantitative methods.
 
-Therefore, this analysis, while limited in scope, takes a first look at the collected data. The study looks at the quality and usability of the data, performs feature reduction and takes first steps modelling and predicting the mutation. Additionally, in the end we provide recommendations how to make the data collection, processing and analysis more automated, holistic and less error prone as opposed to current partly manual data collection.
+Therefore, this analysis, while limited in scope, takes a first look at the collected data. The study looks at the quality and usability of the data, performs feature reduction and takes first steps in modelling and predicting the mutation. Additionally, in the end we provide recommendations how to make the data collection, processing and analysis more automated, holistic and less error prone as opposed to current partly manual data collection.
 
 \section{Process Description}
-Process description for yeast fermentation goes here with all the steps F1-F8.
+Process of yeast fermentation, as described by Lallemand, consists of steps F1-F8. The study is taking a look at steps F2 (seed culture feedbatch) and steps F4 and F5 (semicultural feedbatch and or commercial batches). Even though the data for other batches (ie strains) are present, the labelling is not. Therefore there is not enough information on other batches to perform the study.
+
+\begin{figure}[ht]
+    \centering
+    \smartdiagramset{
+        uniform color list=gray!150!black for 4 items
+        }
+    \smartdiagram[sequence diagram]{F1, F2,F4,F5-8}
+    \caption{Sequence of fermentation steps}
+    \label{fig:process_steps}
+\end{figure}
+
 
 \section{Data Preparation}
-The time series data describing the process arrived in a form of CSV files. The automation system providing the data had split the data vertically into a number of separate files. That is the variables describing the data are grouped into separate files, with one file consisting the entire length of time series (March - December 2018). The process steps were as follows: F2, F4, F5, F6, F7, F8. Additionally we were given data on three processes: CSep, MO and SP. The automation system collects the data at 10 minute interval, but in the time stamps themselves between the respective CSV files vary within that interval. That is, even though all CSV files for a given process step have the same number of rows, the time stamps for these rows are shifted but remain inside 10 minute window. Therefore we rounded all time stamps to the nearest smaller 10 minute point. That allowed the time stamps to match and data to be merged.
+The time series data describing the process arrived in a form of CSV files. The automation system providing the data had split the data vertically into a number of separate files. That is the variables describing the data are grouped into separate files, with one file consisting the entire length of time series (March - December 2018). The process steps were as follows: F2, F4, F5, F6, F7, F8. Additionally we were given data on three processes: CSep, MO and SP. The automation system collects the data at 10 minute interval, but in the time stamps themselves between the respective CSV files vary within that interval (in simpler terms, the timestamps on lines don't match). That is, even though all CSV files for a given process step have the same number of rows, the time stamps for these rows are shifted but remain inside 10 minute window. Therefore we rounded all time stamps to the nearest smaller 10 minute point. That allowed the time stamps to match and data to be merged.
 
-\subsection{Cycle Identification}
-The F-process data were time stamped and also enriched with process time field. Therefore it was easy for these process steps to mark the cycles. When the field \texttt{step\_time} was zero, the production line was considered idle. The value change from zero to non-zero was considered as a marker for start of production cycle. Counting cumulatively the number of start markers allowed us to give a sequence number for each production cycle in each F-production step. Table \ref{tab:new_attributes} summarizes the new variables created.
+\subsection{Batch Identification}
+The F-process data were time stamped and also enriched with process time field. Therefore it was easy for these process steps to mark the batches. When the field \texttt{step\_time} was zero, the production line was considered idle. The value change from zero to non-zero was considered as a marker for start of production batch. Counting cumulatively the number of start markers allowed us to give a sequence number for each production batch in each F-production step. Table \ref{tab:new_attributes} summarizes the new variables created.
 
-\begin{table}[]
+\begin{table}[ht]
     \centering
     \begin{tabular}{l p{9.5cm}}
         Variable &  Description \\
@@ -72,9 +82,9 @@ The F-process data were time stamped and also enriched with process time field. 
 \end{table}
 
 \subsection{Labelling}
-As extra data we were given labels for 12 production batches. The labels were titled ''reject'', ''restrict'' and ''release''. In order to know which batches to label were additionally given production records in a form of PDF files with handwritten notes. A production record contained dates for process steps of F2 and following F4 or F5. We matched manually those dates with our labelling described above. We assumed that the dates in the PDF files marked the \emph{beginning} of the production step. However, in two cases of F2 we were not able to establish that match and picked the \emph{preceding} batch label in the data. The rationale for that the date was recorded during the batch and the production itself had started the previous day. This proved again, that manual data recording is inherently inconsistent and error prone. Therefore, one of our recommendations of our short analysis is to preferably automate the process. If the full automation is not possible, the HMI should be developed that ensures the consistency of times tamps in the recorded data. The full set of recommendations are described in more detail in the last section of this report. The batch numbers in the data with the respective labels are displayed in the table \ref{tab:batches} below.
+As extra data we were given labels for 12 production batches. The labels were titled ''reject'', ''restrict'' and ''release''. In order to know which batches to label were additionally given production records in a form of PDF files with handwritten notes. A production record contained dates for process steps of F2 and following F4 or F5. We matched manually those dates with our labelling described above. We assumed that the dates in the PDF files marked the \emph{beginning} of the production step. However, in two cases of F2 we were not able to establish that match and picked the \emph{preceding} batch label in the data. The rationale for that the date was recorded during the batch and the production itself had started the previous day. This proved again, that manual data recording is inherently inconsistent and error prone. Therefore, one of our recommendations of our short analysis is to preferably automate the process. If the full automation is not possible, the HMI\footnote{HMI - Human Machine Interface} should be developed that ensures the consistency of times tamps in the recorded data. The full set of recommendations are described in more detail in the last section of this report. The batch numbers in the data with the respective labels are displayed in the table \ref{tab:batches} below.
 
-\begin{table}[]
+\begin{table}[ht]
     \centering
     \begin{tabular}{l p{1cm} p{1cm} p{1cm} l l}
         & \multicolumn{3}{ c }{Batch production dates} \\
@@ -101,20 +111,16 @@ As extra data we were given labels for 12 production batches. The labels were ti
 
 
 \section{Exploratory Data Analysis}
-Initially for EDA we concentrated to process steps F2 and F4 since majority of the labelled data resided within those two steps. After completing those we also took a look at F5 and the remaining data sets. The data itself is of acceptable quality with no additional changes necessary. The time series inside a given process step contained, however, various levels of information. Some series were almost exclusively either zero, static, or missing. Since these series do not have at least within this study any explanatory power, we cut these series out. The table below displays the time series that were left to describe each process.
+Initially for EDA we concentrated to process steps F2 and F4 since majority of the labelled data resided within those two steps. After completing those we also took a look at F5 and the remaining data sets. The data itself is of acceptable quality with no additional changes necessary. The time series inside a given process step contained, however, various levels of information. Some series were almost exclusively either zero, static, or missing. Since these series do not have at least within this study any explanatory power, we cut these series out. The table below displays the time series that were left to describe each process. The processes displayed on Figures \ref{fig:f2series}, \ref{fig:f4series} and \ref{fig:f5series}.
 
-Insert F2 series here
-Describe the length of cycle in \texttt{step\_time}
-\begin{figure}
+\begin{figure}[ht]
     \centering
     \includegraphics[width=1.0\textwidth]{f2_plot}
     \caption{Overview of labelled F2 production batches}
     \label{fig:f2series}
 \end{figure}
 
-Insert F4 series here
-Describe \texttt{step\_time}
-\begin{figure}
+\begin{figure}[ht]
     \centering
     \includegraphics[width=1.0\textwidth]{f4_plot}
     \caption{Overview of labelled F4 production batches}
@@ -122,11 +128,12 @@ Describe \texttt{step\_time}
 \end{figure}
 
 
-Insert F5 series here.
-Describe \texttt{step\_time}
-
-\section{Model Development}
-\lipsum[1]
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1.0\textwidth]{f5_plot}
+    \caption{Overview of labelled F5 production batches}
+    \label{fig:f5series}
+\end{figure}
 
 \section{Feature Engineering}
 Analysis of variables based on step times to identify some interruption in data recordings or process.  (parameters collection and representation based on step time and time stamps).

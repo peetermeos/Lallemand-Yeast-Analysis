@@ -10,7 +10,9 @@ Having completed the initial analysis of the yeast production process we have th
 \paragraph{Labelling of parametric data with quality control information.}
 Currently the classification and labelling of production batches is done manually, by guessing the batch production start and end times and labelling the recorded data accordingly. Therefore, the quality of labelling is a potential source of inaccuracies. The question of \emph{which measurements correspond to ‘Rejected’ and which ones correspond to ’Released’ statuses and  which measurements belongs to ‘Seed’ number 4151 and which ones to ‘Seed’ number 5292?} should be answered automatically.
 
-Additionally, in order To analyze the parameters collected from the yeast cultivation process online (and offline) and identifying the deviations that cause quality problems, it is required to have enough historical data that allows to capture information about exact batch numbers and statuses with regards to time and production cycle. 
+\paragraph{Glossary} For further analysis and data storage create data glossary that describes all variables and terms used. This will limit possible future confusions in interpreting the data. Such glossary and metadata is an important portion of organizational data governance and data management.
+
+Additionally, in order to analyze the parameters collected from the yeast cultivation process online (and offline) and identifying the deviations that cause quality problems, it is required to have enough historical data that allows to capture information about exact batch numbers and statuses with regards to time and production cycle. 
 
 \paragraph{Automation of currently manual data collection.}
 Recommend to automate collection of status information such as:
@@ -26,7 +28,7 @@ Recommend to automate collection of status information such as:
 Currently the relationship between time series data from separate production steps is merged and matched manually (eg. linking steps F2 and F4). That linkage should be automated.
 
 \paragraph{Grouping parametric data into production batches.}
-Every time\-stamped row of parametric data should be grouped into a respective production batch. As many observations belongs to the one production batch (M:1) that means approx. 3 days duration for the one particular seed/batch, so after matching the data it should not have \emph{gaps or overlaps} in time period.  
+Every time\-stamped row of parametric data should be grouped into a respective production batch. As many observations belong to the one production batch (M:1) that means approx. 3 days duration for the one particular seed/batch, so after matching the data it should not have \emph{gaps or overlaps} in time period.  
 
 Proposed new records to process parametric time series data on production batches: 
 \begin{itemize}

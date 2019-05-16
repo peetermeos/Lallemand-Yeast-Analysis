@@ -10,11 +10,12 @@
 \usepackage{wrapfig}
 \usepackage{smartdiagram}
 \usepackage{subcaption}
+\usepackage[paper=a4paper,top=1in,bottom=1in,right=0.5in,left=1.5in]{geometry}
 \graphicspath{ {./plots/} }
 \DeclareGraphicsExtensions{.png,.pdf}
 
 \title{Lallemand Yeast Strain 7442 Mutation Analysis}
-\author{Peeter Meos, Liubov Kaes, Tanel Peet, Ott Keki{\v s}ev}
+\author{Peeter Meos, Liubov K\"aes, Tanel Peet, Ott Keki{\v s}ev}
 %\texttt{peeter.meos@proekspert.ee}
 \affil{Proekspert AS}
 %\and
@@ -24,22 +25,42 @@
 %\and
 %\texttt{ott.kekisev@proekspert.ee}
 %}
-
 \date{May 2019}
 
 \begin{document}
-\maketitle
+\pagenumbering{gobble}
+\newgeometry{margin=-0.05in}
 
+\includegraphics[width=1\paperwidth]{title_page.pdf}
+
+\restoregeometry
+
+%\begin{titlepage}
+%    \maketitle
+%    \begin{abstract}
+%            The purpose of this study is to investigate and provide possible insight into the causes of undesirable mutations in yeast strain 7442. Lallemand has established a hypothesis, that the mutations could be caused by an unknown and unfavorable combination of parameters of the production processes.
+
+%            This analysis, while limited in scope, takes a first look at the collected data. The study looks at the quality and usability of the data, performs feature reduction and takes first steps in modelling and predicting the mutation. Additionally, in the end we provide recommendations how to make the data collection, processing and analysis more automated, holistic and less error prone as opposed to current partly manual data collection.
+            
+ %           As results we have concluded that process step F2 has some irregularities that could be interesting for further research. The data is too sparse to support robust claims that the differences in F2 between ``rejected'' and ``released'' batches are indeed statistically significant. However, since some patterns do exist, F2 step should be researched further. 
+%    \end{abstract}
+    
+%\end{titlepage}
+\clearpage
+\pagenumbering{arabic}
 \tableofcontents
 \listoffigures
+\clearpage
 
 \section{Introduction}
 The purpose of this study is to investigate and provide possible insight into the causes of undesirable mutations in yeast strain 7442. Lallemand has established a hypothesis, that the mutations could be caused by an unknown and unfavorable combination of parameters of the production processes. Since the parameter data  of the processes are measured and collected automatically, it should be possible to test that hypothesis using quantitative methods.
 
 Therefore, this analysis, while limited in scope, takes a first look at the collected data. The study looks at the quality and usability of the data, performs feature reduction and takes first steps in modelling and predicting the mutation. Additionally, in the end we provide recommendations how to make the data collection, processing and analysis more automated, holistic and less error prone as opposed to current partly manual data collection.
 
+First sections describe data and methodology. In order to have a quick overview of the results, look at sections \ref{sec:analysis}, \ref{sec:conclusions} and \ref{sec:recommendations} for Analysis, Conclusions and Recommendations respectively.
+
 \section{Process Description}
-Process of yeast fermentation, as described by Lallemand, consists of steps F1-F8. The study is taking a look at steps F2 (seed culture feedbatch) and steps F4 and F5 (semicultural feedbatch and or commercial batches). Even though the data for other batches (ie strains) are present, the labelling is not. Therefore there is not enough information on other batches to perform the study.
+Process of yeast fermentation, as described by Lallemand, consists of steps F1-F8. The study is taking a look at steps F2 (seed culture feedbatch) and steps F4 and F5 (semicultural feedbatch and or commercial batches). Even though the data for other batches (ie strains) are present, the labelling is not. Therefore there is not enough information on other batches to perform the study. The process steps are depicted on Figure \ref{fig:process_steps}, however the data implies that steps F4 and F5 are not sequential as described by Lalleman, but rather occur in parallel. In case of sequence, the link between F4 and F5 steps is missing in the data.
 
 \begin{figure}[ht]
     \centering
@@ -109,20 +130,22 @@ As extra data we were given labels for 12 production batches. The labels were ti
     \label{tab:batches}
 \end{table}
 
+Therefore, in summary, the process steps that were able to link to identified production batches were: F2, F4 and F5. The other steps (both fermentation steps and others, such as separation) did not have sufficient data form making the linkage. In other words - the PDF files that provided the metadata did not have information on those process steps. As an improvement, we recommend adding and automating traceability through all the process steps. For further information see \ref{sec:recommendations}.
+
 
 \section{Exploratory Data Analysis}
 Initially for EDA we concentrated to process steps F2 and F4 since majority of the labelled data resided within those two steps. After completing those we also took a look at F5 and the remaining data sets. The data itself is of acceptable quality with no additional changes necessary. The time series inside a given process step contained, however, various levels of information. Some series were almost exclusively either zero, static, or missing. Since these series do not have at least within this study any explanatory power, we cut these series out. The table below displays the time series that were left to describe each process. The processes displayed on Figures \ref{fig:f2series}, \ref{fig:f4series} and \ref{fig:f5series}.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=1.0\textwidth]{f2_plot}
+    \includegraphics[width=1.1\textwidth]{f2_plot}
     \caption{Overview of labelled F2 production batches}
     \label{fig:f2series}
 \end{figure}
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=1.0\textwidth]{f4_plot}
+    \includegraphics[width=1.1\textwidth]{f4_plot}
     \caption{Overview of labelled F4 production batches}
     \label{fig:f4series}
 \end{figure}
@@ -130,25 +153,23 @@ Initially for EDA we concentrated to process steps F2 and F4 since majority of t
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=1.0\textwidth]{f5_plot}
+    \includegraphics[width=1.1\textwidth]{f5_plot}
     \caption{Overview of labelled F5 production batches}
     \label{fig:f5series}
 \end{figure}
 
 \section{Feature Engineering}
-Analysis of variables based on step times to identify some interruption in data recordings or process.  (parameters collection and representation based on step time and time stamps).
-
 According to provided quality control results (seed and status) information it was possible to explore F2, F4 and F5 yeast fermentation process data. The new labelled dataset was created containing the observations with \emph{manually identified batches and related statuses} (label whether was it rejected, released or restricted release).
 
 \subsection{Study of variables}
-Using multivariate Principal Component Analysis (PCA) method for reducing dimensionality. The method determines the number of principal components and help to identify outliers. The original data set had a plenty correlated and uncorrelated variables and dimensionality reduction can be a very useful step for visualizing and processing high-dimensional data sets.  PCA was used for data understanding as it allowing most of the variability to be explained using fewer variables.
+The study used multivariate Principal Component Analysis (PCA) method for reducing dimensionality. The method determines the number of principal components that explain the variability in the data and helps to identify outliers. The original data set had a plenty correlated and uncorrelated variables and dimensionality reduction can be a very useful step for visualizing and processing high-dimensional data sets.  PCA was used for data understanding as it allowing most of the variability to be explained using fewer variables.
 
 The essence of PCA is to map data points that lie in a high dimensional space into lower dimensional space without significant loss of information. When data has strongly correlated features, then calculating the eigenvectors and eigenvalues of the covariance matrix provides a new lower dimensional orthogonal basis for the data. Picking out a basis from those eigenvectors (for instance 4-5 vectors with most explanatory power) allows us to reduce dimensionality in our case from approximately $\mathbb{R}^{20} \to \mathbb{R}^4$. The downside of this, however, is the interpretability. The actual real life meaning of new transformed axes may not be intuitive and explainable by real world processes. Therefore, PCA should always be complimented by actual domain knowledge of the processes.
 
 PCA was performed in the following steps: first determining the number of desired principal components, then interpreting each principal component in terms of the original variables and and lastly identifying the outliers. Therefore, the first step of exploratory analysis was performing preliminary feature selection operations in order to bring the number of variables to a manageable range.
  
  \subsection{Classification}
-F2, F4, F5 Data Classification.  For prediction a status the Linear Discriminant Analysis (LDA) was applied on data transformed by PCA afterwards. The expectation was, that performing PCA before LDA modelling should give a little better results. LDA explicitly attempts to model the difference between the classes of data and is used when groups are known \emph{a priori}.  LDA was applied on labelled samples and then to unlabeled F2, F4 and F5 data.
+F2, F4, F5 Data Classification. Linear Discriminant Analysis (LDA) was used as the model to predict the status of a batch (release, reject or restrict). The data transformed by PCA was used as input data for the LDA model. The expectation was, that performing PCA before LDA modelling should give a little better results. LDA explicitly attempts to model the difference between the classes of data and is used when groups are known \emph{a priori}.  LDA was applied on labelled samples and then to unlabeled F2, F4 and F5 data.
  
 Analysis of variables to find out deviations from mean values between status groups. Box plotting.  Applied on classified data set (predicted labels/statuses) 
 
@@ -158,9 +179,11 @@ Since the dataset was rather limited in size, no complex mechanisms for data sto
 All required data analysis and inference was done in R. PCA was performed using the built-in R functions \texttt{prcomp()}, \texttt{princomp()}. For visualization the study used R packages \texttt{factoextra} and \texttt{ggplot2} with its respective extensions such as facetting. R package MASS was used for LDA. 
 
 % Analysis section
+\clearpage
 \input{analysis.tex}
 
 % Conclusions section
+\clearpage
 \input{conclusions.tex}
 
 % Recommendations section
@@ -171,6 +194,7 @@ All required data analysis and inference was done in R. PCA was performed using 
 Since the scope of this analysis was limited and aimed rather at proving the potential, we identified but did not cover the following potential areas of further research:
 
 \paragraph{Include pH levels to the time series data.} Currently only automatically collected data was analyzed and modelled. In further work, also the data collected manually (or currently in PDF form but not easily readable) should be incorporated to to modelling. The working hypothesis of that research would be, that dynamics of pH level has statistically significant impact on the undesired mutations in yeast.
+
 \paragraph{Perform more advanced feature engineering on the collected process data.} Currently the process data was treated as independent points in time series. However describing the features of each individual time series for a production batch (such as shape of the curve, rates of change, variablities, moving averages etc) could provide additional valuable insight for modelling. However, it should be noted, that such aggregation of process data will introduce micronumerocity (ie. making sample sizes even smaller). Therefore, in order to provide statistically significant results, firstly, more data collection is needed.
 
 \appendix
